@@ -52,7 +52,7 @@ func gojsonGet(url string, parms map[string]string) ( response map[string]interf
 		log.Fatal(err)
 	}
 	stringRes := string(content)
-	fmt.Println(stringRes)
+	//fmt.Println(stringRes)
 	err = json.Unmarshal([]byte(stringRes), &response)
 	if err != nil{
 		log.Fatal(err)
