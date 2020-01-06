@@ -9,10 +9,7 @@ import (
 
 type Top10 struct{
 	Title string
-	// Director string
-	// Protagonist string
 	Score float64
-	// Time string
 	Abstract string
 }
 
@@ -30,21 +27,12 @@ func GetDoubanTop10()(tops []Top10){
 	document.Find("#content > div > div.article > ol > li").Each(func(i int, selection *goquery.Selection) {
 		content := &Top10{}
 		content.Title = selection.Find("div.hd > a > span").Text()
-		// content.Director = selection.Find("div.comment > p > span").Text()
-		// content.Protagonist = compressStr(selection.Find("span.comment-info > span.comment-time").Text())
 		content.Score, _ = strconv.ParseFloat(selection.Find("div > span.rating_num").Text(), 64)
 		content.Abstract = selection.Find("div.bd > p.quote > span").Text()
-		// content.Time, err = strconv.Atoi(selection.Find("div.comment > h3 > span.comment-vote > span").Text())
 
 		fmt.Println(content)
-		//return false
-		//return
-		// time.Sleep(*time.Second)
 		res = append(res, *content)
 	})
 	return res
 }
 
-// func main(){
-// 	GetDoubanTop10()
-// }
