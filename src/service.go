@@ -36,3 +36,36 @@ func GetDoubanTop10()(tops []Top10){
 	return res
 }
 
+func GetDetails(num int) (res []map[string]interface{}){
+	client := &http.Client{}
+	url :=fmt.Sprintf("https://movie.douban.com/subject/%v/comments?sort=new_score&status=P", num)
+	
+	reqest, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	reqest.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36")
+	response, _ := client.Do(reqest)
+	var detailsRes []map[string]interface{}
+	document, err := goquery.NewDocumentFromReader(response.Body)
+	// "#comments > div:nth-child(1) > div.comment > p > span"
+	document.Find("#comments > div").Each(func(i int, selection *goquery.Selection) {
+		content := make(map[string]interface{})
+		content["user"] = selection.Find("h3 > span.comment-info > a").Text()
+		content["time"]  = compressStr(selection.Find("span.comment-info > span.comment-time").Text())
+		content["text"] = selection.Find("div.comment > p > span").Text()
+		if content["text"] != ""{
+			fmt.Println(content)
+			detailsRes = append(detailsRes, content)
+		}
+	})
+	return detailsRes
+}
+
+
+
+
+// func main(){
+// 	GetDetails("美丽人生")
+// }
+

@@ -2,6 +2,7 @@ package src
 
 import (
 	"fmt"
+	"strconv"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	_ "github.com/go-sql-driver/mysql"
@@ -37,6 +38,12 @@ func AddPeople(c *gin.Context)  {
 
 func GetTop10(c *gin.Context){
 	res:=GetDoubanTop10()
+	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
+}
+
+func GetShortCom(c *gin.Context)  {
+	num, _ := strconv.Atoi(c.Param("num"))
+	res := GetDetails(num)
 	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
 }
 
