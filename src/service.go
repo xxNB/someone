@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"strconv"
+	"encoding/json"
 )
 
 type Top10 struct{
@@ -20,10 +21,20 @@ func GetDoubanTop10()(tops []Top10){
 	if err != nil {
 		fmt.Println(err)
 	}
+	res := []Top10{}
+	redi := &Redis{}
+	c, err := redi.Get("doubantop10")
+	if c != nil && err!=nil{
+		err := json.Unmarshal(c.([]byte), &res)
+		if err != nil {
+			fmt.Println("Umarshal failed:", err)
+			return
+		}
+		return res
+	}
 	reqest.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36")
 	response, _ := client.Do(reqest)
 	document, err := goquery.NewDocumentFromReader(response.Body)
-	res := []Top10{}
 	document.Find("#content > div > div.article > ol > li").Each(func(i int, selection *goquery.Selection) {
 		content := &Top10{}
 		content.Title = selection.Find("div.hd > a > span").Text()
@@ -33,6 +44,11 @@ func GetDoubanTop10()(tops []Top10){
 		fmt.Println(content)
 		res = append(res, *content)
 	})
+	b, err:=json.Marshal(res)
+	if err != nil {
+        fmt.Println("JSON ERR:", err)
+    }
+	redi.Set("doubantop10", string(b))
 	return res
 }
 
