@@ -22,10 +22,10 @@ func GetDoubanTop10()(tops []Top10){
 		fmt.Println(err)
 	}
 	res := []Top10{}
-	redi := &Redis{}
-	c, err := redi.Get("doubantop10")
-	if c != nil && err!=nil{
-		err := json.Unmarshal(c.([]byte), &res)
+	redi := &Rediss{}
+	c, err := redi.get("doubantop10")
+	if c != "" && err!=nil{
+		err := json.Unmarshal([]byte(c), &res)
 		if err != nil {
 			fmt.Println("Umarshal failed:", err)
 			return
@@ -48,7 +48,7 @@ func GetDoubanTop10()(tops []Top10){
 	if err != nil {
         fmt.Println("JSON ERR:", err)
     }
-	redi.Set("doubantop10", string(b))
+	redi.set("doubantop10", string(b))
 	return res
 }
 

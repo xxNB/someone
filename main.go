@@ -15,6 +15,7 @@ func main() {
 	r.POST("/addpeople", src.AddPeople)
     r.GET("/getTop10", src.GetTop10)
     r.GET("/getShortCom/:num", src.GetShortCom)
+    r.GET("/redis_test", src.RedisTest)
     r.Run() // listen and serve on 0.0.0.0:8080
 }
 

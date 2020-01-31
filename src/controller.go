@@ -47,4 +47,7 @@ func GetShortCom(c *gin.Context)  {
 	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
 }
 
-
+func RedisTest(c *gin.Context)  {
+	res := UtilTest()
+	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
+}
