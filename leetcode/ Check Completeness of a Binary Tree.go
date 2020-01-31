@@ -13,8 +13,8 @@
 }
 func isCompleteTree(root *TreeNode) bool {
     nodes := []withNo{{root, 1}}
-    for _, i  := range nodes{
-        node, v := i, i.No
+    for i:=0; i<len(nodes); i++{
+        node, v := nodes[i],nodes[i].No
         if node.Left !=nil{
         nodes = append(nodes, withNo{node.Left, 2*v})
         }
