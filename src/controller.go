@@ -2,10 +2,10 @@ package src
 
 import (
 	"fmt"
-	"strconv"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	_ "github.com/go-sql-driver/mysql"
+	"net/http"
+	"strconv"
 )
 
 
@@ -28,7 +28,7 @@ func AddPeople(c *gin.Context)  {
 			c.JSON(http.StatusForbidden, gin.H{"status": "passwod must be needed"})
 		}
 		fmt.Println("&&&&&&&&")
-       	InsertUser(form.Name, form.Password, form.Age)
+       	//InsertUser(form.Name, form.Password, form.Age)
 		c.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
     }
 }
@@ -37,13 +37,27 @@ func AddPeople(c *gin.Context)  {
 
 
 func GetTop10(c *gin.Context){
-	res:=GetDoubanTop10()
+	page := c.Param("page")
+	pages, err := strconv.Atoi(page)
+	if err!=nil{
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "code": 0, "res": err})
+		return
+	}
+	res:=GetDoubanTop10(pages)
 	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
 }
 
 func GetShortCom(c *gin.Context)  {
-	num, _ := strconv.Atoi(c.Param("num"))
-	res := GetDetails(num)
+	num := c.Param("num")
+	page := c.Param("page")
+	if num =="" || page==""{
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "code": 0, "res": nil})
+		return
+	}
+	pages, _ := strconv.Atoi(page)
+	nums, _ := strconv.Atoi(num)
+
+	res := GetDetails(nums, pages)
 	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
 }
 
