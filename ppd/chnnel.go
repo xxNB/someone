@@ -1,28 +1,38 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+	"sync"
+)
 
-func main()  {
-	naturals := make(chan int)
-	squares := make(chan int)
+var wg sync.WaitGroup
 
-	go func()  {
-		for x := 0; ; x++{
-			naturals <- x
+
+func main(){
+	runtime.GOMAXPROCS(1)
+	wg.Add(2)
+	fmt.Println("Great Goroutines")
+	go printPrime("A")
+	go printPrime("B")
+
+	fmt.Println("Waiting To Finish")
+	wg.Wait()
+	fmt.Println("Terminating Program")
+}
+
+
+func printPrime(prefix string){
+	defer wg.Done()
+
+// next:
+	for outer := 2; outer < 5000; outer++{
+		for inner := 2; inner < outer; inner++{
+			if outer % inner == 0{
+				continue;
+			}
 		}
-	
-}()
-	go func ()  {
-		for {
-			x := <-naturals
-			squares <- x*x
-		}
-	}()
-
-	for{
-		fmt.Println(<-squares)
+		fmt.Printf("%s:%d\n", prefix, outer)
 	}
-
-	}
-
-	
+	fmt.Println("Completed", prefix)
+}

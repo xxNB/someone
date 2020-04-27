@@ -12,11 +12,19 @@ import (
 )
 
 var (
-	h bool
-	d bool
-	id string
-	m string
+	h   bool
+	d   bool
+	id  string
+	m   string
+	com bool
 )
+
+type Comment struct {
+	user    string
+	comment string
+	vote    string
+}
+
 
 func init() {
 	flag.BoolVar(&h, "h", false, "this help")
@@ -26,13 +34,14 @@ func init() {
 	flag.BoolVar(&d, "d", false, "someting details")
 
 	flag.StringVar(&id, "id", "", "book or movie id")
-	// 改变默认的 Usage，flag包中的Usage 其实是一个函数类型。这里是覆盖默认函数实现，具体见后面Usage部分的分析
+
+	flag.BoolVar(&com, "com", false, "comment")
+
 	flag.Usage = usage
 }
 
-
 func usage() {
-	fmt.Fprintf(os.Stderr, `doudouban version: doudouban version 1.0
+	fmt.Fprintf(os.Stderr, `doudouban version:1.0
 		Usage: douban_api [-h help] [-m moviename] [-b bookname] [-d details] [-com comment]
 		
 		Options:
@@ -46,19 +55,37 @@ func searchMovie(name string) {
 	fmt.Println(id)
 }
 
-func MovieDetailsByid(id string)  {
+func MovieDetailsByid(id string) {
 	url := fmt.Sprintf("https://movie.douban.com/subject/%s", id)
 	dom := urlToDocument(url)
 	items := dom.Find("#info")
-	items.EachWithBreak(func(index int, sel *goquery.Selection) bool{
+	items.EachWithBreak(func(index int, sel *goquery.Selection) bool {
 		details := sel.Text()
 		fmt.Println(details)
 		return false
 	})
-	}
+	summary := dom.Find("#link-report > span")
+	summary.EachWithBreak(func(index int, sel *goquery.Selection) bool {
+		details := sel.Text()
+		fmt.Println(details)
+		return false
+	})
+}
 
-
-
+func MovieCommentByid(id string) {
+	url := fmt.Sprintf("https://movie.douban.com/subject/%s/comments?status=P", id)
+	dom := urlToDocument(url)
+	dom.Find("#comments > div").Each(func(i int, sel *goquery.Selection) {
+		user := sel.Find("#comments > div > div.comment > h3 > span.comment-info > a").Text()
+		comment := sel.Find("#comments > div > div.comment > p > span").Text()
+		vote := sel.Find("#comments > div > div.comment > h3 > span.comment-vote > span").Text()
+		if user != "" {
+			fmt.Println("用户名:", user)
+			fmt.Println("评论:", comment)
+			fmt.Println("点赞数:", vote, "\n")
+		}
+	})
+}
 
 func getSearchId(url string) (id string) {
 	client := &http.Client{}
@@ -78,6 +105,10 @@ func getSearchId(url string) (id string) {
 	}
 	cn_json, _ := simplejson.NewJson(res)
 	res_array, _ := cn_json.Array()
+	if len(res_array) == 0{
+		fmt.Println("no this movie or book")
+		return
+	}
 	keys := []string{}
 	for k := range res_array[0].(map[string]interface{}) {
 		keys = append(keys, k)
@@ -86,10 +117,10 @@ func getSearchId(url string) (id string) {
 	for index, di := range res_array {
 		//取第一个
 		newdi, _ := di.(map[string]interface{})
-		for _, key := range (keys){
+		for _, key := range keys {
 			fmt.Printf("%s: %s\t", key, newdi[key])
 		}
-		if index ==0{
+		if index == 0 {
 			id = newdi["id"].(string)
 		}
 		fmt.Print("\n")
@@ -132,16 +163,20 @@ func main() {
 		flag.Usage()
 	}
 
-	if m !=""  {
+	if m != "" {
 		searchMovie(m)
 	}
 
-	if d  && id !=""{
+	if d && id != "" {
 		MovieDetailsByid(id)
+	}
+
+	if com && id != "" {
+		MovieCommentByid(id)
 	}
 
 	//MovieDetailsByid("27615233")
 
-//searchMovie("武林外传")
+	//searchMovie("武林外传")
 
 }
