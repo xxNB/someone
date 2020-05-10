@@ -62,6 +62,11 @@ func GetShortCom(c *gin.Context)  {
 }
 
 func RedisTest(c *gin.Context)  {
-	res := UtilTest()
+	res, err := UtilTest()
+	fmt.Println(err)
+	if err!=nil{
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "code": 0, "res": fmt.Sprintf("%s", err)})
+	}else{
 	c.JSON(http.StatusOK, gin.H{"status": "success", "code": 1, "res": res})
+	}
 }
