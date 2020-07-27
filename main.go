@@ -1,7 +1,9 @@
 package main
 
-import ("github.com/gin-gonic/gin"
-		"someone/src"
+import (
+	"someone/src"
+
+	"github.com/gin-gonic/gin"
 )
 
 

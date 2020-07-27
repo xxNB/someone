@@ -25,7 +25,6 @@ type Comment struct {
 	vote    string
 }
 
-
 func init() {
 	flag.BoolVar(&h, "h", false, "this help")
 
@@ -36,6 +35,8 @@ func init() {
 	flag.StringVar(&id, "id", "", "book or movie id")
 
 	flag.BoolVar(&com, "com", false, "comment")
+
+	
 
 	flag.Usage = usage
 }
@@ -105,7 +106,7 @@ func getSearchId(url string) (id string) {
 	}
 	cn_json, _ := simplejson.NewJson(res)
 	res_array, _ := cn_json.Array()
-	if len(res_array) == 0{
+	if len(res_array) == 0 {
 		fmt.Println("no this movie or book")
 		return
 	}

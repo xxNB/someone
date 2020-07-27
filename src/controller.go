@@ -16,6 +16,12 @@ type LoginForm struct {
 	Age int `form:"info" binding:"required"`
 }
 
+type Search struct{
+	tags  string `form:"tags" binding:"required"`
+	genres string `form:"genres" binding:"required"`
+	countries string `form:"countries" binding:"required"`
+}
+
 func AddPeople(c *gin.Context)  {
     form := &LoginForm{}
     // message := c.BindJSON("message")
@@ -62,7 +68,8 @@ func GetShortCom(c *gin.Context)  {
 }
 
 func RedisTest(c *gin.Context)  {
-	res, err := UtilTest()
+	search := &Search{}
+	res, err := UtilTest(search.tags, search.genres, search.countries)
 	fmt.Println(err)
 	if err!=nil{
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "fail", "code": 0, "res": fmt.Sprintf("%s", err)})

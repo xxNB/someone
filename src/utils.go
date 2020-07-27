@@ -31,18 +31,18 @@ func getConn() (conn redis.Conn, err error) {
 	}
 }
 
-func (rediss *Rediss) set(key string, value string) error{
+func (rediss *Rediss) set(key string, value string) error {
 	c, err := getConn()
 	if err != nil {
 		fmt.Println(err)
 	}
-    _, err = c.Do("SET", key, value)
-    // errors.New("something append")
-    if err != nil{
-        return errors.Wrap(err, "test set bug ")
-    }
-    return nil
-    
+	_, err = c.Do("SET", key, value)
+	// errors.New("something append")
+	if err != nil {
+		return errors.Wrap(err, "test set bug ")
+	}
+	return nil
+
 }
 
 func (rediss *Rediss) get(key string) (res string, err error) {
@@ -63,18 +63,16 @@ func compressStr(str string) string {
 }
 
 func PostJson(url string, data map[string]string) (res *simplejson.Json, err error) {
-
 	redisCli := &Rediss{}
-
 	fmt.Println("post a data successful.")
 	redisRes, err := redisCli.get("doubanExample")
 	if redisRes != "" {
 		// fmt.Printf("response data:%v\n",string(respBody))
-        res, err := simplejson.NewJson([]byte(redisRes))
-        if err!=nil{
-        return res, errors.Wrap(err, "json err")
-        }
-        return res, nil
+		res, err := simplejson.NewJson([]byte(redisRes))
+		if err != nil {
+			return res, errors.Wrap(err, "json err")
+		}
+		return res, nil
 	} else {
 
 		jsonStr, _ := json.Marshal(data)
@@ -83,28 +81,29 @@ func PostJson(url string, data map[string]string) (res *simplejson.Json, err err
 		//post数据并接收http响应
 		resp, err := http.DefaultClient.Do(request)
 		if err != nil {
-			return nil,  errors.Wrap(err, "http err")
+			return nil, errors.Wrap(err, "http err")
 		}
 		respBody, _ := ioutil.ReadAll(resp.Body)
-        err = redisCli.set("doubanExample", string(respBody))
-        if err != nil{
-            return nil, err
-        } 
+		err = redisCli.set("doubanExample", string(respBody))
+		if err != nil {
+			return nil, err
+		}
 		res, err := simplejson.NewJson([]byte(string(respBody)))
 		return res, err
-}
+	}
 }
 
-func UtilTest() (res []interface{}, err error) {
+
+func UtilTest(tags, genres, countries string) (res []interface{}, err error, ) {
 
 	url := "https://movie.douban.com/j/new_search_subjects"
 	data := map[string]string{
 		"sort":      "U",
 		"range":     "0,10",
-		"tags":      "电视剧",
+		"tags":      tags,
 		"start":     "0",
-		"genres":    "悬疑",
-		"countries": "美国",
+		"genres":    genres,
+		"countries": countries,
 	}
 	redisRes, err := PostJson(url, data)
 	if err != nil {
